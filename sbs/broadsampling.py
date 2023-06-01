@@ -290,7 +290,7 @@ class sample:
         ax1.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1],
                     s=100, linewidth=1, facecolors='none')
 
-        ax1.set_title('EOS Density Sampling')
+        ax1.set_title('Broad Initial Sampling')
         ax1.set_xlim([self.boundmin, self.boundmax])
         ax1.set_ylim([self.boundmin, self.boundmax])
 
