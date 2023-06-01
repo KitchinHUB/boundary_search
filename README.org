@@ -1,0 +1,139 @@
+#+title:  Read Me Org File 
+
+This package was designed to present classification boundary methods. The three methods include broad initial sampling, low point-density sampling, and path tracing. The following code demonstrates how to use each module to run classification boundary simulations. Here we use a classification polygon to determine the classification boundary.
+
+* Import Package from Github
+This will import the boundary search package and all the sub-modules within it. It will also import matplotlib's Polygon and Path for use in the classification tasks. 
+#+BEGIN_SRC jupyter-python
+import os
+
+os.system("pip install git+https://github.com/mayabhat/boundary_search.git --upgrade")
+
+from sbs.densitysampling import sample as dsam
+from sbs.pathtracing import sample as psam
+from sbs.broadsampling import sample as bsam
+
+from shapely.geometry import Polygon
+import  matplotlib.path as mplPath
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import svm
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+Collecting git+https://github.com/mayabhat/boundary_search.git
+  Cloning https://github.com/mayabhat/boundary_search.git to /private/var/folders/bd/rbb6rqr92vl2rjbn7_9b7lw80000gn/T/pip-req-build-447_7gfs
+  Running command git clone --filter=blob:none --quiet https://github.com/mayabhat/boundary_search.git /private/var/folders/bd/rbb6rqr92vl2rjbn7_9b7lw80000gn/T/pip-req-build-447_7gfs
+  Resolved https://github.com/mayabhat/boundary_search.git to commit e4e94b58816aa5ca3c70804bcb3f2545596d7fa8
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Requirement already satisfied: autograd in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (1.4)
+Requirement already satisfied: pyDOE2 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (1.3.0)
+Requirement already satisfied: sklearn in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (0.0)
+Requirement already satisfied: matplotlib in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (3.4.3)
+Requirement already satisfied: numpy in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (1.22.4)
+Requirement already satisfied: pycse in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (2.1.5)
+Requirement already satisfied: pandas in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (1.3.4)
+Requirement already satisfied: shapely in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sbs==0.0.1) (2.0.1)
+Requirement already satisfied: future>=0.15.2 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from autograd->sbs==0.0.1) (0.18.2)
+Requirement already satisfied: cycler>=0.10 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from matplotlib->sbs==0.0.1) (0.10.0)
+Requirement already satisfied: kiwisolver>=1.0.1 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from matplotlib->sbs==0.0.1) (1.3.1)
+Requirement already satisfied: pillow>=6.2.0 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from matplotlib->sbs==0.0.1) (8.4.0)
+Requirement already satisfied: pyparsing>=2.2.1 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from matplotlib->sbs==0.0.1) (3.0.4)
+Requirement already satisfied: python-dateutil>=2.7 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from matplotlib->sbs==0.0.1) (2.8.2)
+Requirement already satisfied: pytz>=2017.3 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from pandas->sbs==0.0.1) (2021.3)
+Requirement already satisfied: scipy in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from pycse->sbs==0.0.1) (1.7.1)
+Requirement already satisfied: scikit-learn in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from sklearn->sbs==0.0.1) (1.2.0)
+Requirement already satisfied: six in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from cycler>=0.10->matplotlib->sbs==0.0.1) (1.16.0)
+Requirement already satisfied: joblib>=1.1.1 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from scikit-learn->sklearn->sbs==0.0.1) (1.2.0)
+Requirement already satisfied: threadpoolctl>=2.0.0 in /Users/mayabhat/opt/anaconda3/lib/python3.9/site-packages (from scikit-learn->sklearn->sbs==0.0.1) (2.2.0)
+:END:
+
+* Define a Classification Polygon
+#+BEGIN_SRC jupyter-python
+polygon = Polygon([(1, 1),(1, 2),(2, 2),(2, 1)])     
+x,y = polygon.exterior.xy
+
+fig, ax = plt.subplots(figsize=(5,5))
+ax.plot(x, y)
+ax.set_xlim((0, 3))
+ax.set_ylim((0, 3))
+ax.set_ylabel('x2')
+ax.set_xlabel('x1')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/fa6d347b7db28f12a3789cd01e7223468f16d47d.png]]
+:END:
+Within this polygon will be class 1, and outside will be class 2. The goal of the following methods is to recover the blue boundary line. 
+
+* Broad Initial Sampling 
+
+#+BEGIN_SRC jupyter-python
+bs = bsam([[1.5, 1.5]], polygon, boundmin=0, boundmax=3)
+bs.first_sample(ni=16)
+bs.iter_sample(min_points=2, samples=4)
+bs.plot_final(bs.X, bs.cat)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/4ea6a97432b978a6811c907d033b21e510e63977.png]]
+:END:
+
+To initialize, bsam takes a center point, a polygon shape, and a minimum and maximum bound. The first sample generates a distribution of points around the center point provided. ni is a hyperparameter that determines how many points to initially sample. Other parameters can be found in the broad initial sampling py file in sbs. 
+
+iter_sample performs the simulation to recover the classification boundary within a convergence criteria. The convergence criteria are also hyperparameters that can be specified. 
+
+plot_final plots the true boundary, sample points and their respective classes, predicted boundary, and 95% confidence interval. 
+
+See documentation for hyperparameters. 
+
+* Low Point-Density Sampling 
+
+#+BEGIN_SRC jupyter-python
+ds = dsam([1, 1], polygon, 0, 3)
+ds.first_sample(dis=0.2)
+ds.iter_sample(tol=0.01, n=4, rad_den=0.2, conv_trials=4,
+               min_points=1, domain_step=0.15)
+ds.plot_final(ds.X, ds.cat)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/1c305e5cca22fa5631e6b168481bcbe1b23fdff9.png]]
+:END:
+
+
+To initialize, dsam takes a center point, a polygon shape, and a minimum and maximum bound. The first sample generates a distribution of points around the center point provided. dis is a hyperparameter that determines the initial radius for sample point distribution. Other parameters can be found in the broad initial sampling py file in sbs. 
+
+iter_sample performs the simulation to recover the classification boundary within a convergence criteria. The convergence criteria are also hyperparameters that can be specified. 
+
+plot_final plots the true boundary, sample points and their respective classes, predicted boundary, and 95% confidence interval. 
+
+See documentation for hyperparameters. 
+
+* Path Tracing 
+#+BEGIN_SRC jupyter-python
+ps = psam([[1, 1]], polygon, 0, 3)
+ps.first_sample(dis=0.3, seed=10)
+ps.iter_sample(step=ps.scale*2, dis=0.1, ran_sam=False,
+               conv_num=3, centol = ps.scale*3, seed=10)
+ps.plot_final(ps.X, ps.cat)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/6d0fe62410ee12fd1e3a2b58b759e8c008c642db.png]]
+:END:
+
+To initialize, psam takes a center point, a polygon shape, and a minimum and maximum bound. The first sample generates a distribution of points around the center point provided. dis is a hyperparameter that determines the initial radius for sample point distribution. Other parameters can be found in the broad initial sampling py file in sbs. 
+
+iter_sample performs the simulation to recover the classification boundary within a convergence criteria. The convergence criteria are also hyperparameters that can be specified. 
+
+plot_final plots the true boundary, sample points and their respective classes, predicted boundary, and 95% confidence interval. 
+
+See documentation for hyperparameters. 
