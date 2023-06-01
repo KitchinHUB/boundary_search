@@ -42,7 +42,7 @@ class sample:
         else:
             return 0
 
-    def add_noise(self, X_next, c, w=10):
+    def add_noise(self, X_next, c, w=10, seed=42):
         ''' add noise based on how far a point is from the actual boundary.
         Uses shapely geometry Point to compute the distance from the boundary
         to the point
@@ -56,6 +56,7 @@ class sample:
             # compute distance
             d = sign*self.polygon1.exterior.distance(Point(*X_next[i]))
             q = 1/(1+np.exp(-w*d))   # compute proability
+            np.random.seed(seed)
             r = np.random.rand()
             thresh = (0.5 - np.abs(q-0.5))   # compute threshold for swap
             if r < thresh:
@@ -180,7 +181,7 @@ class sample:
 
         return bound
 
-    def first_sample(self, n=8, dis=0.4, w=10, rad_acq=0.1):
+    def first_sample(self, n=8, dis=0.4, w=10, rad_acq=0.1, seed=42):
         ''' This function makes the first sample for the iteration. Given an
         initial center point, number of samples, and scaling factor for radius
         of samples, it will create the samples, calssify them, fit a model,
@@ -189,7 +190,7 @@ class sample:
         outputs: X, cat, area
         '''
        
-        input_sampler = Sobol(d=2)
+        input_sampler = Sobol(d=2, seed=seed)
 
         # get random points around one edge of the solution
         self.X = dis*(input_sampler.random(n=n)-0.5) + self.center_points[0]
@@ -202,6 +203,7 @@ class sample:
 
         # ensure we actually get a curve
         while len(np.unique(self.cat)) < 2:
+            input_sampler = Sobol(d=2, seed=seed)
             self.X = dis*(input_sampler.random(n=n)-0.5) + self.center_points[0]
             self.X = self.constraints(self.X)
             X_next = self.X
@@ -221,7 +223,7 @@ class sample:
        
         return
 
-    def iter_sample(self, n=4, dis=0.2, w=10, min_points=3, rad_acq=0.1,
+    def iter_sample(self, seed=42, n=4, dis=0.2, w=10, min_points=3, rad_acq=0.1,
                           tol=0.0001, conv_trials=2, domain_step=0.1, rad_den=0.1):
         ''' This function builds off the first sample and runs a sequential sampling
         trial. Is it necessary to have initialized X, cat, and center_points.
@@ -243,10 +245,10 @@ class sample:
         k = 0
         conv_ratio = np.repeat(100, conv_trials)
         min_den = 0
-        input_sampler = Sobol(d=2)
         self.seqind = [len(self.X)]
 
         while ((((conv_ratio > tol).all()) | (min_den < min_points))&(len(self.X)<5000)):
+            input_sampler = Sobol(d=2, seed=seed)
             X_next = dis*(input_sampler.random(n=n) - 0.5) + self.center_points[-1]
             X_next = self.constraints(X_next)
 
@@ -303,7 +305,7 @@ class sample:
         '''
         self.first_sample(n=n1, dis=dis1)
         self.iter_sample(n=n2, dis=dis2, w=w, min_points=min_points,
-                         tol=tol, conv_trials=conv_trials, domain_step=domain_step,
+                         tol=toSl, conv_trials=conv_trials, domain_step=domain_step,
                          rad_acq=rad_acq, rad_den=rad_den)
         fig = self.plot_final(self.X, self.cat)
         return self.X, self.cat, self.bound, self.area[-1]

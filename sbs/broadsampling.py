@@ -40,11 +40,12 @@ class sample:
         else:
             return 0
 
-    def add_noise(self, X_next, c, w=10):
+    def add_noise(self, X_next, c, w=10, seed=42):
         ''' add noise based on how far a point is from the actual boundary.
         Uses shapely geometry Point to compute the distance from the boundary
         to the point
         '''
+
         for i in range(len(X_next)):
             if c[i] == 1:
                 sign = 1
@@ -54,6 +55,7 @@ class sample:
             # compute distance
             d = sign*self.polygon1.exterior.distance(Point(*X_next[i]))
             q = 1/(1+np.exp(-w*d))   # compute proability
+            np.random.seed(seed)
             r = np.random.rand()
             thresh = (0.5 - np.abs(q-0.5))   # compute threshold for swap
             if r < thresh:
@@ -96,10 +98,12 @@ class sample:
         those that do not have many points sampled near by, and then filters
         again by taking a random sampling of 8 points within that subset.
         '''
+    
         b = bound[np.array(self.compute_density(self.X, bound, r=r))
                   < min_points]
         X_next = b
         if len(b) > samples:
+            random.seed(42)
             ind_bound = np.sort(random.sample(list(range(0, len(b))), samples))
             X_next = b[ind_bound]
         return X_next
@@ -149,7 +153,7 @@ class sample:
 
         return bound
 
-    def first_sample(self, ni=16, x1max=2, x2max=5, w=10):
+    def first_sample(self, ni=16, x1max=2, x2max=5, w=10, seed=42):
         ''' This function makes the first sample for the iteration. Given an
         initial center point, number of samples, and scaling factor for radius
         of samples, it will create the samples, calssify them, fit a model,
@@ -158,7 +162,7 @@ class sample:
         outputs: X, cat, area
         '''
 
-        input_sampler = Sobol(d=2)
+        input_sampler = Sobol(d=2, seed=seed)
 
         # get random points around one edge of the solution
         self.X = (input_sampler.random(n=ni))
@@ -186,7 +190,6 @@ class sample:
         self.bound = self.bound_constraint(self.bound)
         
         self.area = [0.001, Polygon(self.bound).area]
-        # area95 = area95_ratio(self.X, self.cat)
         return
 
     def iter_sample(self, w=10, min_points=1, r_acq=0.2, tol=0.0001,
@@ -239,7 +242,6 @@ class sample:
             
             self.seqind.append(len(self.X))
             k += 1
-        print(k)
         return
 
     def sample_simulation(self, ni=16, x1max=2, x2max=5, w=10, min_points=1,
@@ -305,7 +307,6 @@ class sample:
                    loc='upper right')
 
         fig.tight_layout()
-        #plt.savefig(f'{k}-iteration.png')
         return fig
 
     def bound_point_density(self, r=0.05):
@@ -354,5 +355,5 @@ class sample:
             
         poly95 = Polygon(bound)
 
-        area95 = poly95.area#/(self.polygon1.length*self.scale)
+        area95 = poly95.area
         return area95

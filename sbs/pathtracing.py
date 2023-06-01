@@ -43,7 +43,7 @@ class sample:
         else:
             return 0
 
-    def add_noise(self, X_next, c, w=10):
+    def add_noise(self, X_next, c, w=10, seed=42):
         ''' add noise based on how far a point is from the actual boundary.
         Uses shapely geometry Point to compute the distance from the boundary
         to the point
@@ -57,6 +57,7 @@ class sample:
             # compute distance
             d = sign*self.polygon1.exterior.distance(Point(*X_next[i]))
             q = 1/(1+np.exp(-w*d))   # compute proability
+            np.random.seed(seed)
             r = np.random.rand()
             thresh = (0.5 - np.abs(q-0.5))   # compute threshold for swap
             if r < thresh:
@@ -156,7 +157,7 @@ class sample:
 
         return bound
 
-    def first_sample(self, n=8, dis=0.2):
+    def first_sample(self, n=8, dis=0.2, seed=42):
         ''' This function makes the first sample for the iteration. Given an
         initial center point, number of samples, and scaling factor for radius
         of samples, it will create the samples, calssify them, fit a model,
@@ -167,7 +168,7 @@ class sample:
         N: number of initial samples
         DIS: radius of sample distribution
         '''
-        input_sampler = Sobol(d=2)
+        input_sampler = Sobol(d=2, seed=seed)
         # get random points around one edge of the solution
         self.X = dis*(input_sampler.random(n=n)-0.5) + self.center[0]
         #self.X = self.constraints(self.X)
@@ -176,6 +177,7 @@ class sample:
         # ensure we actually get a curve
         while len(np.unique(self.cat)) < 2:
             self.cat = np.array([])
+            input_sampler = Sobol(d=2, seed=seed)
             self.X = dis*(input_sampler.random(n=n)-0.5) + self.center[0]
             #self.X = self.constraints(self.X)
             self.cat = self.classify_X(self.X)
@@ -183,7 +185,7 @@ class sample:
         return
 
     def iter_sample(self, ran_sam=True, conv_num=2, step=None, n=4, dis=None,
-                    atol=0.01, centol=None):
+                    atol=0.01, centol=None, seed=42):
         '''iter_sample is the iterative process to find the boundary. It takes a
         number of hyperparameters, and outputs X, cat, bound, and area.
         
@@ -200,7 +202,7 @@ class sample:
         self.area = np.array([])
         conv_ratio = np.array(np.repeat(10, conv_num))
         startend = False
-        input_sampler = Sobol(d=2)
+        input_sampler = Sobol(d=2, seed=seed)
         
         if step is None:
             step = self.scale*5
@@ -234,27 +236,24 @@ class sample:
             self.center = np.append(self.center, [c1], axis=0)
 
             if ran_sam:
+                input_sampler = Sobol(d=2, seed=seed)
                 X_next = dis1*(input_sampler.random(n=n)-0.5) + c1
             else:
                 X_next = c1+dis1*np.array([[-uvec[1], uvec[0]],
                                            [uvec[1], -uvec[0]]])
 
-            #X_next = dis*(input_sampler.random(n=n)-0.5) + c1
-            #X_next = self.constraints(X_next)
-            
             self.cat = self.classify_X(X_next)
             self.X = np.append(self.X, X_next, axis = 0)
             
             ratio = self.area[:-1]/self.area[1:]
             conv_ratio = np.abs(1-ratio)[-conv_num:]
             startend = np.sum((self.center[0] - self.center[-1])**2)**0.5
-            #print(conv_ratio, (conv_ratio>atol).all(), startend, (startend>centol).all())
             j += 1
 
         return
 
     def sample_simulation(self, n1=8, dis1=0.2, ran_sam=True, conv_num=2, step=None, n2=4,
-                          dis2=None, atol=0.01, centol=None):
+                          dis2=None, atol=0.01, centol=None, seed=42):
         ''' This function calls on the first sample function and the iter_sample
         functions to make the complete sampling simulation. It should return X,
         cat, bound, and the final area.
@@ -268,9 +267,9 @@ class sample:
         ATOL: Tolerance for change in area ratio
         CENTOL: closeness for first and last center point
         '''
-        self.first_sample(n=n1, dis=dis1)
+        self.first_sample(n=n1, dis=dis1, seed=seed)
         self.iter_sample(conv_num=conv_num, step=step, ran_sam=ran_sam,
-                         n=n2, dis=dis2, atol=atol, centol=centol)
+                         n=n2, dis=dis2, atol=atol, centol=centol, seed=seed)
         self.plot_final(self.X, self.cat)
         return self.X, self.cat, self.bound, self.area[-1]
 
