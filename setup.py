@@ -2,7 +2,7 @@
 # (see accompanying license files for details).
 from setuptools import setup
 
-setup(name='doe',
+setup(name='sbs',
       version='0.0.1',
       description='sequential batch sampling - 3 methods',
       url='',
