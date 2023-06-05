@@ -305,7 +305,7 @@ class sample:
         '''
         self.first_sample(n=n1, dis=dis1)
         self.iter_sample(n=n2, dis=dis2, w=w, min_points=min_points,
-                         tol=toSl, conv_trials=conv_trials, domain_step=domain_step,
+                         tol=tol, conv_trials=conv_trials, domain_step=domain_step,
                          rad_acq=rad_acq, rad_den=rad_den)
         fig = self.plot_final(self.X, self.cat)
         return self.X, self.cat, self.bound, self.area[-1]
