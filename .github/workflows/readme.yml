@@ -10,4 +10,3 @@ jobs:
       - run: |
           pip install nbconvert
 	  jupyter nbconvert --execute --to notebook --inplace README.ipynb
-	  
