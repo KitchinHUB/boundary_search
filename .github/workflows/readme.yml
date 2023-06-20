@@ -3,7 +3,7 @@ on: push
 
 jobs:
 
-  my_second_job:
+  run_notebook:
     runs-on: ubuntu-latest
     steps:      
       - uses: actions/checkout@v3
