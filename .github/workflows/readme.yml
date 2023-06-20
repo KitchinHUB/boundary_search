@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:      
       - uses: actions/checkout@v3
-      - run: |
-          pip install nbconvert
-          jupyter nbconvert --execute --to notebook --inplace README.ipynb
+      - name: Set up Python
+        uses: actions/setup-python@v3
+      - uses: yaananth/run-notebook@v2
+        with:
+	  notebook: "README.ipynb"
