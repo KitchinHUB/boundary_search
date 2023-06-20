@@ -41,9 +41,9 @@ class sample:
             return 0
 
     def add_noise(self, X_next, c, w=10, seed=42):
-        """add noise based on how far a point is from the actual boundary.
+        """Add noise based on how far a point is from the actual boundary.
         Uses shapely geometry Point to compute the distance from the boundary
-        to the point
+        to the point.
         """
 
         for i in range(len(X_next)):
@@ -54,7 +54,7 @@ class sample:
 
             # compute distance
             d = sign * self.polygon1.exterior.distance(Point(*X_next[i]))
-            q = 1 / (1 + np.exp(-w * d))  # compute proability
+            q = 1 / (1 + np.exp(-w * d))  # compute probability
             np.random.seed(seed)
             r = np.random.rand()
             thresh = 0.5 - np.abs(q - 0.5)  # compute threshold for swap
@@ -63,7 +63,7 @@ class sample:
         return c
 
     def classify_X(self, X_next):
-        """classifies X_next points based on the calculation of whether it
+        """Classifies X_next points based on the calculation of whether it
         satisfies the desired output space"""
         cat_next = []
         for i in X_next:
@@ -74,7 +74,7 @@ class sample:
         return np.array(cat_next)
 
     def constraints(self, X_next):
-        """constraints for the next data points"""
+        """Constraints for the next data points."""
         X_next[:, 0][X_next[:, 0] < self.boundmin] = self.boundmin
         X_next[:, 0][X_next[:, 0] > self.boundmax] = self.boundmax
         X_next[:, 1][X_next[:, 1] < self.boundmin] = self.boundmin
@@ -82,8 +82,9 @@ class sample:
         return X_next
 
     def bound_constraint(self, bound):
-        """bound_constraint takes bound and ensures that the bound
-        that we compute is within the constraints.
+        """Takes bound and ensures that the bound that we compute is within the
+        constraints.
+
         """
         b = bound[
             (bound[:, 0] > self.boundmin)
@@ -109,8 +110,7 @@ class sample:
         return X_next
 
     def compute_density(self, X, bound, r=0.1):
-        """compute_density takes in the boundary and the sampled points
-        and finds the number of points within a radius r.
+        """Finds the number of points within a radius r.
         """
         density = []
         for i in bound:
@@ -120,7 +120,7 @@ class sample:
         return density
 
     def get_bound(self, X, cat):
-        """Get bound uses a svm calssifier to make a model with self.X, and
+        """Get bound uses a svm classifier to make a model with self.X, and
         self.cat. We then enumerate the space based on the current sample domain
         and then make predictions based on the trained model. With the
         predictions, a contour plot is made and the bound is extracted with a 2d
@@ -157,7 +157,7 @@ class sample:
     def first_sample(self, ni=16, x1max=2, x2max=5, w=10, seed=42):
         """This function makes the first sample for the iteration. Given an
         initial center point, number of samples, and scaling factor for radius
-        of samples, it will create the samples, calssify them, fit a model,
+        of samples, it will create the samples, classify them, fit a model,
         and get a decision boundary.
 
         outputs: X, cat, area
@@ -341,7 +341,7 @@ class sample:
         return fig
 
     def bound_point_density(self, r=0.05):
-        """computes the number of points within a radius r from the boundary"""
+        """Computes the number of points within a radius r from the boundary."""
         polybound = Polygon(self.bound)
 
         disPoint = []
@@ -351,8 +351,7 @@ class sample:
         return np.sum(np.array(disPoint) <= r) / len(self.X)
 
     def avg_dis_bound(self):
-        """this computes the average distance of points to the bound whenever
-        you run it
+        """This computes the average distance of points to the bound.
         """
 
         disPoint = []
@@ -363,8 +362,8 @@ class sample:
         return np.mean(disPoint)
 
     def area95_ratio(self, x1max, x2max):
-        """computes the ratio of areas of the 95% confidence iterval and the
-        area of the domain space
+        """Computes the ratio of areas of the 95% confidence interval and the
+        area of the domain space.
         """
         clf = svm.SVC(kernel="rbf", C=10000, probability=True)
         clf.fit(self.X, self.cat.ravel())

@@ -15,7 +15,7 @@ class sample:
     """
 
     def __init__(self, center_point, polygon, boundmin=0, boundmax=1):
-        """store inputs as global variables
+        """Initialize density sampling.
         CENTER_POINT:  list of [x1, x2] values where the initial sampling
         should take place
         POLYGON: is a Polygon shape that defines the boundary apriori
@@ -56,7 +56,7 @@ class sample:
 
             # compute distance
             d = sign * self.polygon1.exterior.distance(Point(*X_next[i]))
-            q = 1 / (1 + np.exp(-w * d))  # compute proability
+            q = 1 / (1 + np.exp(-w * d))  # compute probability
             np.random.seed(seed)
             r = np.random.rand()
             thresh = 0.5 - np.abs(q - 0.5)  # compute threshold for swap
@@ -65,7 +65,7 @@ class sample:
         return c
 
     def classify_X(self, X_next):
-        """classifies X_next points based on the calculation of whether it
+        """Classifies X_next points based on the calculation of whether it
         satisfies the desired output space"""
         cat_next = []
         for i in X_next:
@@ -147,8 +147,7 @@ class sample:
         return X_next, np.min(density), np.max(density_class)
 
     def compute_density(self, bound, r=0.1):
-        """compute_density takes in the boundary and the sampled points
-        and finds the number of points within a radius r.
+        """Finds the number of points within a radius r.
         """
         density = []
         for i in bound:
@@ -158,7 +157,7 @@ class sample:
         return density
 
     def get_bound(self, X, cat):
-        """Get bound uses a svm calssifier to make a model with self.X, and self.cat.
+        """Uses a svm classifier to make a model with X, and cat.
         We then enumerate the space based on the current sample domain and
         then make predictions based on the trained model. With the predictions,
         a contour plot is made and the bound is extracted with a 2d array of
@@ -231,7 +230,6 @@ class sample:
         )
 
         self.area = [0.001, Polygon(self.bound).area]
-        # area95 = area95_ratio(self.X, self.cat)
 
         return
 
@@ -263,7 +261,7 @@ class sample:
         CONV_TRIALS: The number of trials that must match the area convergence
                      condition.
         DOMAIN_STEP: The domain step size when the domain has not maxed yet.
-        R: Radius for acquitision function to determine point and class density.
+        R: Radius for acquisition function to determine point and class density.
 
         """
         k = 0

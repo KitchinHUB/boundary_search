@@ -62,7 +62,7 @@ class sample:
         return c
 
     def classify_X(self, X_next):
-        """classifies X_next points based on the calculation of whether it
+        """Classifies X_next points based on the calculation of whether it
         satisfies the desired output space"""
         cat_next = []
         for i in X_next:
@@ -73,7 +73,7 @@ class sample:
         return cat
 
     def constraints(self, X_next):
-        """constraints for the next data points"""
+        """Constraints for the next data points"""
         X_next[:, 0][X_next[:, 0] < self.boundmin] = self.boundmin
         X_next[:, 0][X_next[:, 0] > self.boundmax] = self.boundmax
         X_next[:, 1][X_next[:, 1] < self.boundmin] = self.boundmin
@@ -81,8 +81,8 @@ class sample:
         return X_next
 
     def bound_constraint(self, bound):
-        """bound_constraint takes bound and ensures that the bound
-        that we compute is within the constraints.
+        """Ensures that the bound that we compute is within the constraints.
+
         """
         b = bound[
             (bound[:, 0] > self.boundmin)
@@ -113,7 +113,8 @@ class sample:
         dx2dx1 = (vector[1] + 0.0001) / (vector[0] + 0.001)
         m_vec = np.array([1, dx2dx1])
 
-        # The new x data point is a fixed distance away from the first point in the direction of the slope vector
+        # The new x data point is a fixed distance away from the first point in
+        # the direction of the slope vector
         u_vec = m_vec / np.linalg.norm(m_vec) * np.sign(vector[0])
         c1 = p1 + step * u_vec
         c1 = self.constraints(np.array([c1]))[0]
@@ -302,14 +303,14 @@ class sample:
         return self.X, self.cat, self.bound, self.area[-1]
 
     def plot_final(self, X, cat):
-        """
-        plot_final takes X and cat and plots the decision boundary, sampled points,
-        their classification, and the 95% uncertainty interval.
+        """Plots the decision boundary, sampled points, their classification,
+        and the 95% uncertainty interval.
 
         outputs: figure
 
         X: 2D array of data points with each row being a different data point
         cat: classification of each sampled point
+
         """
         # fit initial model
         clf = svm.SVC(kernel="rbf", C=10000, probability=True)
@@ -368,7 +369,6 @@ class sample:
         fig.legend(["True Boundary", "Data", "95% confidence"], loc="upper right")
 
         fig.tight_layout()
-        # plt.savefig(f'{k}-iteration.png')
         return fig
 
     def bound_point_density(self, r=0.05):
@@ -382,7 +382,7 @@ class sample:
         return np.sum(np.array(disPoint) <= r) / len(self.X)
 
     def avg_dis_bound(self):
-        """this computes the average distance of points to the bound whenever
+        """This computes the average distance of points to the bound whenever
         you run it
         """
 
@@ -394,8 +394,8 @@ class sample:
         return np.mean(disPoint)
 
     def area95_ratio(self, x1max, x2max):
-        """computes the ratio of areas of the 95% confidence iterval and the
-        area of the domain space
+        """computes the ratio of areas of the 95% confidence interval and the
+        area of the domain space.
         """
         clf = svm.SVC(kernel="rbf", C=10000, probability=True)
         clf.fit(self.X, self.cat.ravel())
