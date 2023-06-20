@@ -11,4 +11,4 @@ jobs:
         uses: actions/setup-python@v3
       - uses: yaananth/run-notebook@v2
         with:
-	  notebook: "README.ipynb"
+          notebook: "README.ipynb"
