@@ -2,6 +2,11 @@
 
 This package was designed to present classification boundary methods. The three methods include broad initial sampling, low point-density sampling, and path tracing. The following code demonstrates how to use each module to run classification boundary simulations. Here we use a classification polygon to determine the classification boundary.
 
+# This didn't work
+#+BEGIN_SRC emacs-lisp
+(require 'ox-ipynb)
+#+END_SRC 
+
 * Import Package from Github
 This will import the boundary search package and all the sub-modules within it. It will also import matplotlib's Polygon and Path for use in the classification tasks. 
 #+BEGIN_SRC jupyter-python
