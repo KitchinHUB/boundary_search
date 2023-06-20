@@ -13,4 +13,5 @@ jobs:
           pip install nbconvert
           pip install --upgrade pip ipython ipykernel
           ipython kernel install --name "python3" --user
+          pip install scikit-learn
           jupyter nbconvert --execute --to notebook --inplace README.ipynb
