@@ -11,4 +11,6 @@ jobs:
         uses: actions/setup-python@v3
       - run: |
           pip install nbconvert
+          pip install --upgrade pip ipython ipykernel
+          ipython kernel install --name "python3" --user
           jupyter nbconvert --execute --to notebook --inplace README.ipynb
