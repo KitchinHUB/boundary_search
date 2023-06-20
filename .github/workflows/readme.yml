@@ -1,0 +1,12 @@
+name: Run README notebook
+on: push
+
+jobs:
+
+  my_second_job:
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v3
+      - run: |
+          pip install nbconvert
+	  jupyter nbconvert --execute --to notebook --inplace README.ipynb
