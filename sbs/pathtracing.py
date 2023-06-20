@@ -4,13 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point
 from shapely.ops import nearest_points
-from scipy.optimize import minimize
 from pyDOE2 import *
 from scipy.stats.qmc import Sobol
 from sklearn import svm
-import matplotlib.tri as mtri
-import os
-import sys
 
 
 class sample:
@@ -389,7 +385,6 @@ class sample:
         """this computes the average distance of points to the bound whenever
         you run it
         """
-        polybound = Polygon(self.bound)
 
         disPoint = []
         for i in self.X:
@@ -407,7 +402,6 @@ class sample:
 
         grid_x, grid_y = np.mgrid[0:x1max:100j, 0:x2max:100j]
         grid = np.stack([grid_x, grid_y], axis=-1)
-        pt_test = clf.predict(grid.reshape(-1, 2)).reshape(*grid_x.shape)
 
         fig, ax1 = plt.subplots(1, 1, figsize=(6, 5))
         ax1 = plt.gca()

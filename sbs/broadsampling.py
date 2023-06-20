@@ -3,7 +3,6 @@ import matplotlib.path as mplPath
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point
-from scipy.optimize import minimize
 from pyDOE2 import *
 from scipy.stats.qmc import Sobol
 from sklearn import svm
@@ -121,10 +120,12 @@ class sample:
         return density
 
     def get_bound(self, X, cat):
-        """Get bound uses a svm calssifier to make a model with self.X, and self.cat.
-        We then enumerate the space based on the current sample domain and then make
-        predictions based on the trained model. With the predictions, a contour plot
-        is made and the bound is extracted with a 2d array of vertices.
+        """Get bound uses a svm calssifier to make a model with self.X, and
+        self.cat. We then enumerate the space based on the current sample domain
+        and then make predictions based on the trained model. With the
+        predictions, a contour plot is made and the bound is extracted with a 2d
+        array of vertices.
+
         """
         clf = svm.SVC(kernel="rbf", C=1000, probability=True)
         clf.fit(X, cat)
@@ -195,12 +196,12 @@ class sample:
     def iter_sample(
         self, w=10, min_points=1, r_acq=0.2, tol=0.0001, conv_trials=2, samples=8
     ):
-        """This function builds off the first sample and runs a sequential sampling
-        trial. Is it necessary to have initialized X, cat, and center_points.
-        It runs a loop that will converge if two convergence criteria are met:
-        The ratio of predicted areas should not change between n last areas,
-        and the minimum number of points within a radius r has to be no less
-        than min_den.
+        """This function builds off the first sample and runs a sequential
+        sampling trial. Is it necessary to have initialized X, cat, and
+        center_points. It runs a loop that will converge if two convergence
+        criteria are met: The ratio of predicted areas should not change between
+        n last areas, and the minimum number of points within a radius r has to
+        be no less than min_den.
 
         W: weight factor that determines the likelihood of noise
         MIN_POINTS: The minimum number of points within a radius for acquisition.
@@ -208,6 +209,7 @@ class sample:
         TOL: The area tolerance for convergence
         CONV_TRIALS: The number of trials that must match the area convergence
                      condition.
+
         """
         k = 0
         conv_ratio = np.repeat(100, conv_trials)
@@ -280,7 +282,7 @@ class sample:
             conv_trials=conv_trials,
             samples=samples,
         )
-        fig = self.plot_final(self.X, self.cat)
+
         return self.X, self.cat, self.bound, self.area[-1]
 
     def plot_final(self, X, cat):
@@ -352,7 +354,6 @@ class sample:
         """this computes the average distance of points to the bound whenever
         you run it
         """
-        polybound = Polygon(self.bound)
 
         disPoint = []
         for i in self.X:
@@ -370,7 +371,6 @@ class sample:
 
         grid_x, grid_y = np.mgrid[0:x1max:100j, 0:x2max:100j]
         grid = np.stack([grid_x, grid_y], axis=-1)
-        pt_test = clf.predict(grid.reshape(-1, 2)).reshape(*grid_x.shape)
 
         fig, ax1 = plt.subplots(1, 1, figsize=(6, 5))
         ax1 = plt.gca()

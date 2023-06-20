@@ -3,13 +3,9 @@ import matplotlib.path as mplPath
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point
-from scipy.optimize import minimize
 from pyDOE2 import *
 from scipy.stats.qmc import Sobol
 from sklearn import svm
-import matplotlib.tri as mtri
-import os
-import sys
 
 
 class sample:
@@ -36,6 +32,9 @@ class sample:
         )
 
     def classify_curve_point(self, x1, x2):
+        """Return class of point.
+        Class = 1 if point is inside the Polygon, else 0.
+        """
         rect = mplPath.Path(np.array(np.array([self.x, self.y]).T))
         point = (x1, x2)
         if rect.contains_point(point):
@@ -44,9 +43,10 @@ class sample:
             return 0
 
     def add_noise(self, X_next, c, w=10, seed=42):
-        """add noise based on how far a point is from the actual boundary.
-        Uses shapely geometry Point to compute the distance from the boundary
-        to the point
+        """Add noise based on how far a point is from the actual boundary. Uses
+        shapely geometry Point to compute the distance from the boundary to the
+        point.
+
         """
         for i in range(len(X_next)):
             if c[i] == 1:
@@ -108,7 +108,6 @@ class sample:
             point_bool_in_rad = np.sum((self.X - curvePoint) ** 2, axis=1) <= r**2
             density.append(np.sum(point_bool_in_rad))  # total point density
 
-            X_inrad = self.X[point_bool_in_rad]  # get X points that are in the radius
             cat_inrad = self.cat[
                 point_bool_in_rad
             ]  # get the classification of these points
@@ -195,10 +194,11 @@ class sample:
     def first_sample(self, n=8, dis=0.4, w=10, rad_acq=0.1, seed=42):
         """This function makes the first sample for the iteration. Given an
         initial center point, number of samples, and scaling factor for radius
-        of samples, it will create the samples, calssify them, fit a model,
-        and get a decision boundary.
+        of samples, it will create the samples, calssify them, fit a model, and
+        get a decision boundary.
 
         outputs: X, cat, area
+
         """
 
         input_sampler = Sobol(d=2, seed=seed)
@@ -248,12 +248,12 @@ class sample:
         domain_step=0.1,
         rad_den=0.1,
     ):
-        """This function builds off the first sample and runs a sequential sampling
-        trial. Is it necessary to have initialized X, cat, and center_points.
-        It runs a loop that will converge if two convergence criteria are met:
-        The ratio of predicted areas should not change between n last areas,
-        and the minimum number of points within a radius r has to be no less
-        than min_den.
+        """This function builds off the first sample and runs a sequential
+        sampling trial. Is it necessary to have initialized X, cat, and
+        center_points. It runs a loop that will converge if two convergence
+        criteria are met: The ratio of predicted areas should not change between
+        n last areas, and the minimum number of points within a radius r has to
+        be no less than min_den.
 
         N: The number of sample points per iteration
         DIS: The spread distribution of the sample points per iteration
@@ -264,6 +264,7 @@ class sample:
                      condition.
         DOMAIN_STEP: The domain step size when the domain has not maxed yet.
         R: Radius for acquitision function to determine point and class density.
+
         """
         k = 0
         conv_ratio = np.repeat(100, conv_trials)
@@ -339,6 +340,7 @@ class sample:
                      condition.
         DOMAIN_STEP: The domain step size when the domain has not maxed yet.
         R: Radius for acquitision function to determine point and class density.
+
         """
         self.first_sample(n=n1, dis=dis1)
         self.iter_sample(
@@ -352,7 +354,7 @@ class sample:
             rad_acq=rad_acq,
             rad_den=rad_den,
         )
-        fig = self.plot_final(self.X, self.cat)
+
         return self.X, self.cat, self.bound, self.area[-1]
 
     def plot_final(self, X, cat):
@@ -408,18 +410,10 @@ class sample:
         fig.legend(["True Boundary", "Data", "95% confidence"], loc="upper right")
 
         fig.tight_layout()
-        # plt.savefig(f'{k}-iteration.png')
         return fig
 
-    # class eval:
-    #    def __init__(self, X, bound, cat, polygon):
-    #        self.X = X
-    #        self.bound = bound
-    #        self.cat = cat
-    #        self.polygon1 = polygon
-
     def bound_point_density(self, r=0.05):
-        """computes the number of points within a radius r from the boundary"""
+        """Computes the number of points within a radius r from the boundary"""
         polybound = Polygon(self.bound)
 
         disPoint = []
@@ -429,10 +423,7 @@ class sample:
         return np.sum(np.array(disPoint) <= r) / len(self.X)
 
     def avg_dis_bound(self):
-        """this computes the average distance of points to the bound whenever
-        you run it
-        """
-        polybound = Polygon(self.bound)
+        """This computes the average distance of points to the bound."""
 
         disPoint = []
         for i in self.X:
@@ -442,15 +433,14 @@ class sample:
         return np.mean(disPoint)
 
     def area95_ratio(self, x1max, x2max):
-        """computes the ratio of areas of the 95% confidence iterval and the
-        area of the domain space
+        """Computes the ratio of areas of the 95% confidence interval and the
+        area of the domain space.
         """
         clf = svm.SVC(kernel="rbf", C=10000, probability=True)
         clf.fit(self.X, self.cat.ravel())
 
         grid_x, grid_y = np.mgrid[0:x1max:100j, 0:x2max:100j]
         grid = np.stack([grid_x, grid_y], axis=-1)
-        pt_test = clf.predict(grid.reshape(-1, 2)).reshape(*grid_x.shape)
 
         fig, ax1 = plt.subplots(1, 1, figsize=(6, 5))
         ax1 = plt.gca()
