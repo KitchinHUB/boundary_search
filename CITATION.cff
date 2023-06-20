@@ -1,0 +1,10 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Maya
+    given-names: Bhat
+    orcid: https://orcid.org/0000-0001-9750-9599
+title: mayabhat/boundary_search: Initial release boundary_search
+version: 2023-06-01
+date-released: 2023-06-01
+            
