@@ -8,7 +8,7 @@ from scipy.stats.qmc import Sobol
 from sklearn import svm
 
 
-class sample:
+class DensitySampler:
     """
     Function takes in a starting center point, and certain hyper parameters.
     Outputs full sampling suite.
