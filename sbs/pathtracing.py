@@ -273,7 +273,7 @@ class sample:
         dis2=None,
         atol=0.01,
         centol=None,
-        seed=42,
+        seed=42
     ):
         """This function calls on the first sample function and the iter_sample
         functions to make the complete sampling simulation. It should return X,
