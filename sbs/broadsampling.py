@@ -257,7 +257,8 @@ class sample:
         r_acq=0.2,
         tol=0.0001,
         conv_trials=2,
-        samples=8, seed = 42
+        samples=8, 
+        seed=42
     ):
         """This function calls on the first sample function and the iter_sample
         functions to make the complete sampling simulation. It should return X,
@@ -280,7 +281,7 @@ class sample:
             r_acq=r_acq,
             tol=tol,
             conv_trials=conv_trials,
-            samples=samples,
+            samples=samples
         )
 
         return self.X, self.cat, self.bound, self.area[-1]
