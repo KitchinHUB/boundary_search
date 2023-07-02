@@ -324,6 +324,7 @@ class sample:
         domain_step=0.1,
         rad_acq=0.1,
         rad_den=0.1,
+        seed = 42
     ):
         """This function calls on the first sample function and the iter_sample
         functions to make the complete sampling simulation. It should return X,
@@ -340,7 +341,7 @@ class sample:
         R: Radius for acquitision function to determine point and class density.
 
         """
-        self.first_sample(n=n1, dis=dis1)
+        self.first_sample(n=n1, dis=dis1, seed = seed)
         self.iter_sample(
             n=n2,
             dis=dis2,
@@ -350,7 +351,7 @@ class sample:
             conv_trials=conv_trials,
             domain_step=domain_step,
             rad_acq=rad_acq,
-            rad_den=rad_den,
+            rad_den=rad_den, seed = seed
         )
 
         return self.X, self.cat, self.bound, self.area[-1]
