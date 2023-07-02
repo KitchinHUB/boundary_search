@@ -9,7 +9,7 @@ from sklearn import svm
 import random
 
 
-class sample:
+class BroadSampler:
     """
     Function takes in a starting center point, and certain hyper parameters.
     Outputs full sampling suite.
