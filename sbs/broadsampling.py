@@ -257,7 +257,7 @@ class sample:
         r_acq=0.2,
         tol=0.0001,
         conv_trials=2,
-        samples=8,
+        samples=8, seed = 42
     ):
         """This function calls on the first sample function and the iter_sample
         functions to make the complete sampling simulation. It should return X,
@@ -273,7 +273,7 @@ class sample:
         DOMAIN_STEP: The domain step size when the domain has not maxed yet.
         R: Radius for acquitision function to determine point and class density.
         """
-        self.first_sample(ni=ni, x1max=x1max, x2max=x2max, w=w)
+        self.first_sample(ni=ni, x1max=x1max, x2max=x2max, w=w, seed = seed)
         self.iter_sample(
             w=w,
             min_points=min_points,
